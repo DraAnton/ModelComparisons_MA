@@ -2,7 +2,6 @@ import torch, cv2, re, random
 import numpy as np
 import pandas as pd
 import xml.etree.ElementTree as ET
-from detectron2.structures import BoxMode
 
 from typing import List, Dict, Tuple, Callable
 from tqdm.auto import tqdm
@@ -103,6 +102,7 @@ class DataSet(torch.utils.data.Dataset):
         self.use_detectron = use_detectron
         self.image_and_label_reader = READER_img_and_label(self.mapping, csv_label_column)
         if(self.use_detectron):
+            from detectron2.structures import BoxMode
             return 
 
         # without detectron it is possible to read all images beforehand and store them into ram(if sufficient memory is available)
@@ -153,6 +153,7 @@ class DataSet(torch.utils.data.Dataset):
 
     # USED when using DETECTRONs buildin dataloader (reads images only to extract their dimensions)
     def get_data_dicts(name = "train"):
+        assert self.use_detectron, "use_detectron flag needs to be set true"
         dataset_dicts = []
 
         idx = 0
