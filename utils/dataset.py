@@ -102,7 +102,6 @@ class DataSet(torch.utils.data.Dataset):
         self.use_detectron = use_detectron
         self.image_and_label_reader = READER_img_and_label(self.mapping, csv_label_column)
         if(self.use_detectron):
-            from detectron2.structures import BoxMode
             return 
 
         # without detectron it is possible to read all images beforehand and store them into ram(if sufficient memory is available)
@@ -152,8 +151,9 @@ class DataSet(torch.utils.data.Dataset):
       return x, y
 
     # USED when using DETECTRONs buildin dataloader (reads images only to extract their dimensions)
-    def get_data_dicts(name = "train"):
+    def get_data_dicts(self, name = "train"):
         assert self.use_detectron, "use_detectron flag needs to be set true"
+        from detectron2.structures import BoxMode
         dataset_dicts = []
 
         idx = 0
