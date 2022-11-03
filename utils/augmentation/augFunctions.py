@@ -26,7 +26,7 @@ def Normalize(image: np.array, bboxes: np.array, labels: np.array ) -> Tuple:
 
 
 # Class that can be initialized with several augmentation functions. In Each epoch, one random function is choosen from the function selection
-#    ie. Random_Augmentation_Chooser([fun1, fun2, fun3], probabilities = [.8, .1, .1]) ----- in that case fun1 is more likely to be applied
+#    ie. Random_Augmentation_Chooser([fun1, fun2, fun3], probabilities = [.8, .1, .1]) ----- in that case fun1 is more likely to be applied to the image
 class Random_Augmentation_Chooser():
   def __init__(self, enhancements: List[Callable], probabilities: List[float] = None):
     self.own_functions = enhancements

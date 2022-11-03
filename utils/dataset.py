@@ -63,7 +63,7 @@ def read_from_xml(path: str, mapping: Dict) -> Dict:
   return {"labels":a, "boxes":b}
 
 
-class READER_img_and_label():
+class READER_img_and_label(): # can read csv and xml files as labels. The right function is chosen here
     def __init__(self, mapping: Dict, csv_label_column: str):
         self.mapping = mapping
         self.csv_label_column = csv_label_column
@@ -79,6 +79,20 @@ class READER_img_and_label():
             return im_, a
         return im_, read_from_xml(tar, self.mapping)
 
+
+  
+'''
+Class: DataSet
+  Function: __init__()
+    inputs: List of strings representing the paths to the images
+    targets: List of stings representing the paths to the BoundingBox Files (needs to be the same order as "inputs" List)
+    use_cache: all images are read into memory -> no read operation has to be conducted during training (only for smaller training sets)
+    convert_to_format: not used anymore
+    mapping: dictionary that maps class present in the Label Files to integer (e.g. {"Fish":1, "Potato":2, "Human":3})
+    random_enhancement: only for the specific use case of randomly enhanced images. When reading images, it will randomly choose from different version of the image present on the hard drive
+    use_detectron: When the Mask-RCNN implementation is used. Different output format 
+    csv_label_column: the csv files need to have a specific format. columns: (RectX, RectY, RectWidth, RectHeight, class). The column name "class" can be different and specified here
+'''
 class DataSet(torch.utils.data.Dataset):
     def __init__(self,
                 inputs: List[str],
@@ -114,7 +128,8 @@ class DataSet(torch.utils.data.Dataset):
         return len(self.inputs)
 
 
-    # USED when not using DETECTRONs buildin dataloader
+    # USED when NOT using DETECTRONs buildin dataloader
+    #     used like: datasetElemet[5] -> returns the fifth image and the respective bounding box coordinates
     def __getitem__(self, index: int):
       # Select the sample
       if self.use_cache: # IF ALREADY LOADED INTO MEMORY
@@ -138,7 +153,7 @@ class DataSet(torch.utils.data.Dataset):
         from skimage.color import rgba2rgb
         x = rgba2rgb(x)
 
-      if self.transform is not None:
+      if self.transform is not None: # applies a image transformation pipeline
         x, boxes, labels = self.transform(image = x, bboxes = y["boxes"], labels = y["labels"])  # returns np.ndarrays
         y["boxes"] = np.array(boxes)
         y["labels"] = np.array(labels)
@@ -187,4 +202,4 @@ class DataSet(torch.utils.data.Dataset):
             idx += 1
             dataset_dicts.append(record)
 
-        return dataset_dicts
+        return dataset_dicts #The return Dictionary does not contain the images, but only information about the images(e.g. the path for each image and boundingBox coordinates). Detectron handles the image reading internally
